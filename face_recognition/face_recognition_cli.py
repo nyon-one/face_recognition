@@ -16,7 +16,7 @@ def scan_known_people(known_people_folder):
     known_face_encodings = []
 
     for file in image_files_in_folder(known_people_folder):
-        basename = os.path.splitext(os.path.basename(file))[0]
+        basename = os.path.basename(os.path.dirname(file))
         img = face_recognition.load_image_file(file)
         encodings = face_recognition.face_encodings(img)
 
@@ -65,7 +65,12 @@ def test_image(image_to_check, known_names, known_face_encodings, tolerance=0.6,
 
 
 def image_files_in_folder(folder):
-    return [os.path.join(folder, f) for f in os.listdir(folder) if re.match(r'.*\.(jpg|jpeg|png)', f, flags=re.I)]
+    for f in os.listdir(folder):
+        f = os.path.join(folder, f)
+        if os.path.isdir(f):
+            for i in os.listdir(f):
+                if re.match(r'.*\.(jpg|jpeg|png)', i, flags=re.I):
+                    yield os.path.join(f, i)
 
 
 def process_images_in_process_pool(images_to_check, known_names, known_face_encodings, number_of_cpus, tolerance, show_distance):
